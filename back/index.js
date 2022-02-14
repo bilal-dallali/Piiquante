@@ -3,25 +3,20 @@ const app = express()
 const cors = require("cors")
 const port = 3000
 
-// Database
-const mongoose = require('mongoose');
-const password = "rgFKTzrxvHYQUZlJ"
-const uri =
-  `mongodb+srv://Bilal:${password}@cluster0.nmwlz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+// Connection to database
+require("./mongo")
 
-mongoose
-  .connect(uri)
-  .then(()=> console.log("Connected to Mongo!"))
-  .catch((err) => console.error("Error connecting to Mongo: ", err))
+// Controlers
+const {createUser} = require("./controlers/users")
 
 // Middleware
 app.use(cors())
 app.use(express.json())
 
 // Routes
-app.post("/api/auth/signup", (req, res) => {
-  console.log("Signup request:", req.body)
-  res.send({ message: "utilisateur enregistré !" })
-})
+
+app.post("/api/auth/signup", (req, res) => createUser(req, res))
 app.get("/", (req, res) => res.send("Hello world !"))
+
+// Listen
 app.listen(port, () => console.log("Listening on port " + port))
