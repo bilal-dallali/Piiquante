@@ -9,6 +9,7 @@ require("./mongo")
 
 // Controlers
 const {createUser} = require("./controlers/users")
+const { User } = require('./mongo')
 
 // Middleware
 app.use(cors())
@@ -16,7 +17,7 @@ app.use(express.json())
 
 // Routes
 
-app.post("/api/auth/signup", (req, res) => createUser(req, res))
+app.post("/api/auth/signup", createUser)
 app.get("/", (req, res) => res.send("Hello world !"))
 
 // Listen
