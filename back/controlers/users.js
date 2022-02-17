@@ -8,13 +8,13 @@ async function createUser(req, res) {
 
     console.log("password:", password)
     console.log("hashedPassword:", hashedPassword)
-    
+
     const user = new User({ email, password: hashedPassword })
   
     user
       .save()
-      .then(() => res.send({ message: "utilisateur enregistré !" }))
-      .catch((err) => console.log("User pas enregistré", err))
+      .then(() => res.status(201).send({ message: "utilisateur enregistré !" }))
+      .catch((err) => res.status(409).send({ message: "User pas enregistré" + err}))
   }
 
 function hashPassword(password) {
@@ -22,4 +22,9 @@ function hashPassword(password) {
   return bcrypt.hash(password, saltRounds)
 }
 
-module.exports = {createUser}
+function logUser(req, res) {
+  const email = req.body.email
+  const password = req.body.password
+}
+
+module.exports = { createUser, logUser }
