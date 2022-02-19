@@ -27,7 +27,7 @@ async function logUser(req, res) {
   const password = req.body.password
   const user = await User.findOne({email: email})
 
-  const isPasswordOK = bcrypt.compare(password, user.password)
+  const isPasswordOK = await bcrypt.compare(password, user.password)
   if (!isPasswordOK) {
     res.status(403).send({ message: "Mot de passe incorrect" })
   }
