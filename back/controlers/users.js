@@ -1,7 +1,6 @@
 const { User } = require("../mongo")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const { json } = require("express")
 
 async function createUser(req, res) {
   try {
@@ -9,7 +8,7 @@ async function createUser(req, res) {
     const hashedPassword = await hashPassword(password)
     const user = new User({ email, password: hashedPassword })
     await user.save()
-    console.log("savedUser:", savedUser)
+    //console.log("savedUser:", savedUser)
 
     res.status(201).send({ message: "utilisateur enregistré !" })
   } catch (err){
@@ -31,10 +30,10 @@ async function logUser(req, res) {
 
     const isPasswordOK = await bcrypt.compare(password, user.password)
     if (!isPasswordOK) {
-      res.status(403).send({ message: "Mot de passe incorrect" })
+      res.status(401).send({ message: "Mot de passe incorrect" })
     }
     const token = createToken(email)
-    res.status(200).send({ userId: user?.id, token: token })
+    res.status(200).send({ userId: user.id, token: token })
     } catch (err) {
       console.error(err)
       res.status(500).send({ message: "Erreur interne" })
@@ -43,7 +42,7 @@ async function logUser(req, res) {
 
 function createToken(email) {
   const jwtPassword = process.env.JWT_PASSWORD
-  return jwt.sign({ email: email }, jwtPassword, { expiresIn: "1000ms" })
+  return jwt.sign({ email: email }, jwtPassword, { expiresIn: "24h" })
 }
 
 //User.deleteMany({}).then(() => console.log("all removed"))

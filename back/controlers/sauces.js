@@ -1,23 +1,47 @@
-const jwt = require("jsonwebtoken")
+const mongoose = require("mongoose")
+
+const productSchema = new mongoose.Schema({
+    userId: String,
+    name: String,
+    manufacturer: String,
+    description: String,
+    mainPepper: String,
+    imageUrl: String,
+    heat: Number,
+    likes: Number,
+    dislikes: Number,
+    usersLiked: [String],
+    usersDisliked: [String]
+})
+const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
-    const header = req.header("Authorization")
-    if (header == null) return res.status(403).send({ message: "Invalid" })
-
-    const token = header.split(" ")[1]
-    if (token == null) return res.status(403).send({ message: "Token cannot be null" })
-    console.log("token:", token)
-
-    jwt.verify(token, process.env.JWT_PASSWORD, (err, decoded) => handleToken(err, decoded, res))
-    
+    console.log("Le token a été validé, nous dommes dans getSauces")
+    //authentificateUser(req, res)
+    //console.log("Le token à l'air bon", decoded)
+    Product.find({}).then(products => res.send(products))
+    //res.send({ message: [{ sauce: "sauce-1" }, { sauce: "sauce-2" }] })
 }
 
-function handleToken(err, decoded) {
-    if (err) res.status(403).send({ message: "Token invalid" + err })
-    else {
-        console.log("Le token à l'air bon", decoded)
-        res.send({ message: [{sauces: "sauce-1"}, {sauces: "sauce-2"}] })
-    }
+function createSauces(req, res) {
+    const name = req.body.name
+    const manufacturer = req.body.manufacturer
+    console.log({ body: req.body })
+
+    const product = new Product({
+        userId: "hello",
+        name: "hello",
+        manufacturer: "hello",
+        description: "hello",
+        mainPepper: "hello",
+        imageUrl: "hello",
+        heat: 2,
+        likes: 2,
+        dislikes: 2,
+        usersLiked: ["hello"],
+        usersDisliked: ["hello"]
+    })
+    product.save().then((res) => console.log("produit enregistré")).catch(console.error)
 }
 
-module.exports = { getSauces }
+module.exports = { getSauces, createSauces }
