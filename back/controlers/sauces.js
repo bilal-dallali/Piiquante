@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
-    console.log("Le token a été validé, nous dommes dans getSauces")
+    console.log("Le token a été validé, nous sommes dans getSauces")
     //authentificateUser(req, res)
     //console.log("Le token à l'air bon", decoded)
     Product.find({}).then(products => res.send(products))
@@ -24,24 +24,32 @@ function getSauces(req, res) {
 }
 
 function createSauces(req, res) {
-    const name = req.body.name
-    const manufacturer = req.body.manufacturer
-    console.log({ body: req.body })
+const sauce = JSON.parse(req.body.sauce)
+
+const {name, manufacturer, description, mainPepper, heat, userId} = sauce
+console.log("sauce", sauce)
+    
+    console.log({ body: req.body.sauce })
+    console.log({file: req.file})
+    const imageUrl = req.file.destination + req.file.filename
 
     const product = new Product({
-        userId: "hello",
-        name: "hello",
-        manufacturer: "hello",
-        description: "hello",
-        mainPepper: "hello",
-        imageUrl: "hello",
-        heat: 2,
-        likes: 2,
-        dislikes: 2,
-        usersLiked: ["hello"],
-        usersDisliked: ["hello"]
+        userId,
+        name,
+        manufacturer,
+        description,
+        mainPepper,
+        imageUrl,
+        heat,
+        likes: 0,
+        dislikes: 0,
+        usersLiked: [],
+        usersDisliked: []
     })
-    product.save().then((res) => console.log("produit enregistré")).catch(console.error)
+    product
+    .save()
+    .then((res) => console.log("produit enregistré"))
+    .catch(console.error)
 }
 
 module.exports = { getSauces, createSauces }
