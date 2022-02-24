@@ -3,10 +3,20 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 const port = 3000
-//const bodyParser = require("body-parser")
-//const path = require("path")
 const multer = require("multer")
-const upload = multer({ dest: "images/" })
+
+const storage = multer.diskStorage({
+    destination: "images/",
+    filename: function (req, file, cb) {
+        cb(null, makeFilename(file))
+    }
+})
+
+function makeFilename(file) {
+    return `${Date.now()}-${file.originalname}`
+}
+
+const upload = multer({ storage: storage})
 
 // Connection to database
 require("./mongo")
@@ -18,9 +28,6 @@ const { getSauces, createSauces } = require("./controlers/sauces")
 // Middleware
 app.use(cors())
 app.use(express.json())
-//app.use(bodyParser.urlencoded({extended: true}))
-//app.use(bodyParser.json())
-//app.use(express.static("public/images"))
 
 const { authentificateUser } = require("./middleware/auth")
 
