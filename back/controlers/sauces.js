@@ -16,10 +16,9 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
-    console.log("Le token a été validé, nous sommes dans getSauces")
-    //console.log("Le token à l'air bon", decoded)
+    //Product.deleteMany({}).then(console.log).catch(console.error)
+    //console.log("Le token a été validé, nous sommes dans getSauces")
     Product.find({}).then((products) => res.send(products))
-    //res.send({ message: [{ sauce: "sauce-1" }, { sauce: "sauce-2" }] })
 }
 
 function createSauces(req, res) {
