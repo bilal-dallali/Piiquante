@@ -21,9 +21,18 @@ function getSauces(req, res) {
         .catch(error => res.status(500).send(error))
 }
 
-async function getSauceById(req, res) {
+function getSauceById(req, res) {
     const { id } = req.params
-    Product.findById(id).then((product) => res.send(product)).catch(console.error)
+    Product.findById(id)
+        .then((product) => res.send(product))
+        .catch(console.error)
+}
+
+function deleteSauce(req, res) {
+    const { id } = req.params
+    Product.findByIdAndDelete(id)
+        .then((product) => res.send({ message: "product deleted" }))
+        .catch(err => res.status(500).send({message: err}))
 }
 
 function createSauces(req, res) {
@@ -58,4 +67,4 @@ function createSauces(req, res) {
     .catch(console.error)
 }
 
-module.exports = { getSauces, createSauces, getSauceById }
+module.exports = { getSauces, createSauces, getSauceById, deleteSauce }
