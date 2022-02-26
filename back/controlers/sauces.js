@@ -46,7 +46,10 @@ function createSauces(req, res) {
     })
     product
     .save()
-    .then((res) => console.log("produit enregistré"))
+    .then((message) => {
+        res.status(201).send({ message: message })
+        return console.log("produit enregistré", res)
+    })
     .catch(console.error)
 }
 
