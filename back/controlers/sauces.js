@@ -16,9 +16,14 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
-    //Product.deleteMany({}).then(console.log).catch(console.error)
-    //console.log("Le token a été validé, nous sommes dans getSauces")
-    Product.find({}).then((products) => res.send(products))
+    Product.find({})
+        .then((products) => res.send(products))
+        .catch(error => res.status(500).send(error))
+}
+
+async function getSauceById(req, res) {
+    const { id } = req.params
+    Product.findById(id).then((product) => res.send(product)).catch(console.error)
 }
 
 function createSauces(req, res) {
@@ -53,4 +58,4 @@ function createSauces(req, res) {
     .catch(console.error)
 }
 
-module.exports = { getSauces, createSauces }
+module.exports = { getSauces, createSauces, getSauceById }
