@@ -32,8 +32,7 @@ function getSauceById(req, res) {
 function deleteSauce(req, res) {
     const { id } = req.params
     Product.findByIdAndDelete(id)
-        //.then(deleteImage)
-        .then((product) => res.send({ message: product }))
+        .then((product) => sendClientResponse(product, res))
         .catch((err) => res.status(500).send({ message: err }))
 }
 /*
@@ -57,12 +56,12 @@ function modifySauce(req, res) {
         .catch((err) => console.error("PROBLEM UPDATING", err))
 }
 
-function sendClientResponse(dbResponse, res) {
-    if (dbResponse == null) {
+function sendClientResponse(product, res) {
+    if (product == null) {
         console.log("NOTHING TO UPDATE")
-        res.status(404).send({ message: "Nothing to update" })
+        return res.status(404).send({ message: "Nothing to update" })
     }
-    console.log("ALL GOOD, UPDATING:", dbResponse)
+    console.log("ALL GOOD, UPDATING:", product)
     res.status(200).send({ message: "Successfully updated" })
 }
 
