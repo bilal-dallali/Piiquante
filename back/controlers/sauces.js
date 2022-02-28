@@ -50,6 +50,7 @@ function modifySauce(req, res) {
 
     const { body } = req
     console.log("body and params:", body, id)
+    console.log("req.file", req.file)
 
     Product.findByIdAndUpdate(id, body)
         .then((product) => sendClientResponse(product, res))
