@@ -31,32 +31,41 @@ function getSauceById(req, res) {
 
 function deleteSauce(req, res) {
     const { id } = req.params
-
-    //Ordre de suppression du produit envoyé à Mongo
     Product.findByIdAndDelete(id)
-        //Supprimer l'image localement
-        .then(deleteImage)
-        //Envoyer un message de succès côté client
+        //.then(deleteImage)
         .then((product) => res.send({ message: product }))
         .catch((err) => res.status(500).send({ message: err }))
 }
-
+/*
 function deleteImage(product) {
     const imageUrl = product.imageUrl
     const fileToDelete = imageUrl.split("/").at(-1)
     return unlink(`images/${fileToDelete}`).then(() => product)
 }
-
+*/
 
 function modifySauce(req, res) {
-    const { params: {id}} = req
+    const { 
+        params: { id }
+    } = req
 
     const { body } = req
     console.log("body and params:", body, id)
+
     Product.findByIdAndUpdate(id, body)
-        .then(res => console.log("ALL GOOD UPDATING: ", res))
-        .catch(err => console.error("PROBLEM UPDATING", err))
+        .then((product) => sendClientResponse(product, res))
+        .catch((err) => console.error("PROBLEM UPDATING", err))
 }
+
+function sendClientResponse(dbResponse, res) {
+    if (dbResponse == null) {
+        console.log("NOTHING TO UPDATE")
+        res.status(404).send({ message: "Nothing to update" })
+    }
+    console.log("ALL GOOD, UPDATING:", dbResponse)
+    res.status(200).send({ message: "Successfully updated" })
+}
+
 
 
 function createSauces(req, res) {
