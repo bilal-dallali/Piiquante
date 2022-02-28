@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const { unlink } = require("fs").promises.unlink
+const unlink = require("fs").promises.unlink
 
 const productSchema = new mongoose.Schema({
     userId: String,
@@ -18,7 +18,7 @@ const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
     Product.find({})
-        .then((products) => res.send(products))
+        .then((product) => res.send(product))
         .catch((error) => res.status(500).send(error))
 }
 
@@ -44,8 +44,20 @@ function deleteSauce(req, res) {
 function deleteImage(product) {
     const imageUrl = product.imageUrl
     const fileToDelete = imageUrl.split("/").at(-1)
-    return unlink(`images/${fileToDelete}`).the(() => product)
+    return unlink(`images/${fileToDelete}`).then(() => product)
 }
+
+
+function modifySauce(req, res) {
+    const { params: {id}} = req
+
+    const { body } = req
+    console.log("body and params:", body, id)
+    Product.findByIdAndUpdate(id, body)
+        .then(res => console.log("ALL GOOD UPDATING: ", res))
+        .catch(err => console.error("PROBLEM UPDATING", err))
+}
+
 
 function createSauces(req, res) {
     const { body, file } = req
@@ -71,12 +83,12 @@ function createSauces(req, res) {
         usersDisliked: []
     })
     product
-    .save()
-    .then((message) => {
-        res.status(201).send({ message: message })
-        return console.log("produit enregistré", res)
-    })
-    .catch(console.error)
+        .save()
+        .then((message) => {
+            res.status(201).send({ message: message })
+            return console.log("produit enregistré", res)
+        })
+        .catch(console.error)
 }
 
-module.exports = { getSauces, createSauces, getSauceById, deleteSauce }
+module.exports = { getSauces, createSauces, getSauceById, deleteSauce, modifySauce }
