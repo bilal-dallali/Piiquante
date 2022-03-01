@@ -127,27 +127,30 @@ function likeSauce(req, res) {
 
     getSauce(req, res)
         .then((product) => updateVote(product, like, userId, res))
-        .then(prod => sendClientResponse(prod, res))
+        .then(pr => pr.save())
+        .then((prod) => sendClientResponse(prod, res))
         .catch((err) => res.status(500).send(err))
 }
 
 function updateVote(product, like, userId, res) {
-    if (like === 1 || like === -1) incrementVote(product, userId, like)
-    if (like === 0) resetVote(product, userId)
-    return product.save()
+    if (like === 1 || like === -1) return incrementVote(product, userId, like)
+    if (like === 0) return resetVote(product, userId, res)
 }
 
 function resetVote(product, userId) {
     const { usersLiked, usersDisliked } = product
-    if ([usersLiked, usersDisliked].every(arr => arr.includes(userId))) return res.status(500).send(
-        {message: "Users seems to have voted both ways"})
+    if ([usersLiked, usersDisliked].every(arr => arr.includes(userId))) 
+        return Promise.reject("Users seems to have voted both ways")
 
-    if([usersLiked, usersDisliked].some(arr => arr.includes(userId))) return res.status(500).send(
-        {message: "User seems to have not voted"})
+    if(![usersLiked, usersDisliked].some((arr) => arr.includes(userId))) 
+        return Promise.reject("User seems to have not voted")
+    
+    const voteToUpdate = usersLiked.includes(userId) ? usersLiked : usersDisliked
     
     let arrayToUpdate = usersLiked.includes(userId) ? usersLiked : usersDisliked
-    const arrayWithoutUser = arrayToUpdate.filter(id => id != userId)
+    const arrayWithoutUser = arrayToUpdate.filter((id) => id != userId)
     arrayToUpdate = arrayWithoutUser
+    return product
 }
 
 function incrementVote(product, userId, like) {
@@ -159,8 +162,7 @@ function incrementVote(product, userId, like) {
 
     let voteToUpdate = like === 1 ?product.likes : product.dislikes
     voteToUpdate++
-
-    console.log("product après le vote:", product)
+    return product
 }
 
 module.exports = { getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce }
