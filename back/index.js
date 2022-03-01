@@ -1,6 +1,7 @@
 const { app, express } = require("./server")
 const port = 3000
 const path = require("path")
+//const bodyParser = require("boby-parser")
 
 // Connection to database
 require("./mongo")

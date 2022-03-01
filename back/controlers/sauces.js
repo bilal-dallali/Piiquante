@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const unlink = require("fs").promises.unlink
+const { unlink } = require("fs/promises")
 
 const productSchema = new mongoose.Schema({
     userId: String,
@@ -33,6 +33,8 @@ function deleteSauce(req, res) {
     const { id } = req.params
     Product.findByIdAndDelete(id)
         .then((product) => sendClientResponse(product, res))
+        .then((item) => deleteImage(item))
+        .then((res) => console.log("FILE DELETED", res))
         .catch((err) => res.status(500).send({ message: err }))
 }
 /*
@@ -54,7 +56,17 @@ function modifySauce(req, res) {
 
     Product.findByIdAndUpdate(id, payload)
         .then((dbResponse) => sendClientResponse(dbResponse, res))
+        .then((product) => deleteImage(product))
+        .then((res) => console.log('FILE DELETED', res))
         .catch((err) => console.error("PROBLEM UPDATING", err))
+}
+
+function deleteImage(product) {
+    if (product == null) return
+    console.log("DELETE IMAGE", product)
+    const imageToDelete = product.imageUrl.split("/").at(-1)
+    return unlink("images/" + imageToDelete)
+        //.catch((err) => console.error("PROBLEM UPDATING", err))
 }
 
 function makePayload(hasNewImage, req) {
@@ -73,7 +85,8 @@ function sendClientResponse(product, res) {
         return res.status(404).send({ message: "Object not found in database" })
     }
     console.log("ALL GOOD, UPDATING:", product)
-    res.status(200).send({ message: "Successfully updated" })
+    return Promise.resolve(res.status(200).send({ message: "Successfully updated" })
+    .then(() => product))
 }
 
 function makeImageUrl(req, fileName) {

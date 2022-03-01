@@ -9,7 +9,7 @@ async function createUser(req, res) {
     const user = new User({ email, password: hashedPassword })
     await user.save()
     res.status(201).send({ message: "utilisateur enregistré !" })
-  } catch (err){
+  } catch (err) {
     res.status(409).send({ message: "User pas enregistré :" + err })
   }
 }
@@ -19,7 +19,6 @@ function hashPassword(password) {
   return bcrypt.hash(password, saltRounds)
 }
 
-
 async function logUser(req, res) {
   try {
     const email = req.body.email
@@ -28,10 +27,10 @@ async function logUser(req, res) {
 
     const isPasswordOK = await bcrypt.compare(password, user.password)
     if (!isPasswordOK) {
-      res.status(401).send({ message: "Mot de passe incorrect" })
+      res.status(403).send({ message: "Mot de passe incorrect" })
     }
     const token = createToken(email)
-    res.status(200).send({ userId: user.id, token: token })
+    res.status(200).send({ userId: user?.id, token: token })
     } catch (err) {
       console.error(err)
       res.status(500).send({ message: "Erreur interne" })
