@@ -48,35 +48,43 @@ function modifySauce(req, res) {
         params: { id }
     } = req
 
-    const { body } = req
-    console.log("body and params:", body, id)
     console.log("req.file", req.file)
+    const hasNewImage = req.file != null
+    const payload = makePayload(hasNewImage, req)
 
-    Product.findByIdAndUpdate(id, body)
-        .then((product) => sendClientResponse(product, res))
+    Product.findByIdAndUpdate(id, payload)
+        .then((dbResponse) => sendClientResponse(dbResponse, res))
         .catch((err) => console.error("PROBLEM UPDATING", err))
+}
+
+function makePayload(hasNewImage, req) {
+    console.log("hasNewImage:", hasNewImage)
+    if (!hasNewImage) return req.body
+    const payload = JSON.parse(req.body.sauce)
+    payload.imageUrl = makeImageUrl(req, req.file.filename)
+    console.log("NOUVELLE IMAGE A GERER")
+    console.log("voici le payload:", payload)
+    return payload
 }
 
 function sendClientResponse(product, res) {
     if (product == null) {
         console.log("NOTHING TO UPDATE")
-        return res.status(404).send({ message: "Nothing to update" })
+        return res.status(404).send({ message: "Object not found in database" })
     }
     console.log("ALL GOOD, UPDATING:", product)
     res.status(200).send({ message: "Successfully updated" })
 }
 
-
+function makeImageUrl(req, fileName) {
+    return req.protocol + "://" + req.get("host") + "/images/" + fileName
+}
 
 function createSauces(req, res) {
     const { body, file } = req
     const { fileName } = file
     const sauce = JSON.parse(body.sauce)
     const { name, manufacturer, description, mainPepper, heat, userId } = sauce
-    
-    function makeImageUrl(req, fileName) {
-        return req.protocol + "://" + req.get("host") + "/images/" + fileName
-    }
 
     const product = new Product({
         userId: userId,
