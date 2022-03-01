@@ -1,6 +1,7 @@
 const { app, express } = require("./server")
 const { saucesRouter } = require("./routers/sauces.router")
 const { authRouter } = require("./routers/auth.router")
+const bodyParser = require("body-parser")
 const port = 3000
 const path = require("path")
 //const bodyParser = require("boby-parser")
@@ -9,6 +10,7 @@ const path = require("path")
 require("./mongo")
 
 // Middleware
+app.use(bodyParser.json())
 app.use("/api/sauces", saucesRouter)
 app.use("/api/auth", authRouter)
 
