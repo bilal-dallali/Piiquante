@@ -22,11 +22,14 @@ function getSauces(req, res) {
         .catch((error) => res.status(500).send(error))
 }
 
-function getSauceById(req, res) {
+function getSauce(req, res) {
     const { id } = req.params
-    Product.findById(id)
-        .then((product) => res.send(product))
-        .catch(console.error)
+    return Product.findById(id)
+}
+
+function getSauceById(req, res) { 
+    getSauce(req, res)
+        .then(product => sendClientResponse(product, res))
 }
 
 function deleteSauce(req, res) {
@@ -85,8 +88,9 @@ function sendClientResponse(product, res) {
         return res.status(404).send({ message: "Object not found in database" })
     }
     console.log("ALL GOOD, UPDATING:", product)
-    return Promise.resolve(res.status(200).send({ message: "Successfully updated" })
-    .then(() => product))
+    return Promise.resolve(res.status(200).send(product).then(
+        () => product)
+    )
 }
 
 function makeImageUrl(req, fileName) {
@@ -121,4 +125,12 @@ function createSauces(req, res) {
         .catch(console.error)
 }
 
-module.exports = { getSauces, createSauces, getSauceById, deleteSauce, modifySauce }
+function likeSauce(req, res) {
+    getSauce(req, res)
+        .then((product) => {
+            console.log("the product to like is:", product)
+        })
+    const userId = req.body.userId
+}
+
+module.exports = { getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce }
