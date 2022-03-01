@@ -1,4 +1,6 @@
 const { app, express } = require("./server")
+const { saucesRouter } = require("./routers/sauces.router")
+const { authRouter } = require("./routers/auth.router")
 const port = 3000
 const path = require("path")
 //const bodyParser = require("boby-parser")
@@ -6,23 +8,11 @@ const path = require("path")
 // Connection to database
 require("./mongo")
 
-// Controlers
-const { createUser, logUser } = require("./controlers/users")
-const { getSauces, createSauces, getSauceById, deleteSauce, modifySauce } = require("./controlers/sauces")
-
 // Middleware
-const { upload } = require("./middleware/multer")
-const { authentificateUser } = require("./middleware/auth")
+app.use("/api/sauces", saucesRouter)
+app.use("/api/auth", authRouter)
 
 // Routes
-app.post("/api/auth/signup", createUser)
-app.post("/api/auth/login", logUser)
-
-app.get("/api/sauces", authentificateUser, getSauces)
-app.post("/api/sauces", authentificateUser, upload.single("image"), createSauces)
-app.get("/api/sauces/:id", authentificateUser, getSauceById)
-app.delete("/api/sauces/:id", authentificateUser, deleteSauce)
-app.put("api/sauces/:id", authentificateUser, upload.single("image"), modifySauce)
 app.get("/", (req, res) => res.send("Hello world !"))
 
 // Listen
