@@ -30,7 +30,7 @@ function getSauce(req, res) {
 
 function getSauceById(req, res) { 
     getSauce(req, res)
-        .then(product => sendClientResponse(product, res))
+        .then((product) => sendClientResponse(product, res))
         .catch((err) => res.status(500).send(err))
 }
 

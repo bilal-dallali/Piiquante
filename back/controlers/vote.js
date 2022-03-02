@@ -1,8 +1,8 @@
-const { getSauce, sendClientResponse } = require("./sauces")
+const {getSauce, sendClientResponse} = require("./sauces")
 
 function likeSauce(req, res) {
     const { like, userId } = req.body
-    if (![1, -1, 0].includes(like)) return res.status(403).send({ message: "Invalid like value"})
+    if (![1, -1, 0].includes(like)) return res.status(403).send({ message: "Invalid like value" })
 
     getSauce(req, res)
         .then((product) => updateVote(product, like, userId, res))
@@ -31,7 +31,7 @@ function resetVote(product, userId, res) {
         --product.dislikes
         product.usersDisliked = product.usersDisliked.filter((id) => id !== userId)
     }
-    
+
     return product
 }
 
