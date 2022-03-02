@@ -1,14 +1,18 @@
+const bodyParser = require("body-parser")
 const express = require("express")
 const { getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce } = require("../controlers/sauces")
 const { authentificateUser } = require("../middleware/auth")
 const { upload } = require("../middleware/multer")
 const saucesRouter = express.Router()
 
-saucesRouter.get("/", authentificateUser, getSauces)
-saucesRouter.post("/", authentificateUser, upload.single("image"), createSauces)
-saucesRouter.get("/:id", authentificateUser, getSauceById)
-saucesRouter.delete("/:id", authentificateUser, deleteSauce)
-saucesRouter.put("/:id", authentificateUser, upload.single("image"), modifySauce)
-saucesRouter.post("/:id/like", authentificateUser, likeSauce)
+saucesRouter.use(bodyParser.json())
+saucesRouter.use(authentificateUser)
+
+saucesRouter.get("/", getSauces)
+saucesRouter.post("/", upload.single("image"), createSauces)
+saucesRouter.get("/:id", getSauceById)
+saucesRouter.delete("/:id", deleteSauce)
+saucesRouter.put("/:id", upload.single("image"), modifySauce)
+saucesRouter.post("/:id/like", likeSauce)
 
 module.exports = { saucesRouter }

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const { unlink } = require("fs/promises")
+const { likeSauce } = require("./vote")
 
 const productSchema = new mongoose.Schema({
     userId: String,
@@ -8,7 +9,7 @@ const productSchema = new mongoose.Schema({
     description: String,
     mainPepper: String,
     imageUrl: String,
-    heat: Number,
+    heat: { type: Number, min: 1, max: 5 },
     likes: Number,
     dislikes: Number,
     usersLiked: [String],
@@ -18,7 +19,7 @@ const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
     Product.find({})
-        .then((product) => res.send(product))
+        .then((products) => res.send(products))
         .catch((error) => res.status(500).send(error))
 }
 
@@ -54,7 +55,6 @@ function modifySauce(req, res) {
         params: { id }
     } = req
 
-    console.log("req.file", req.file)
     const hasNewImage = req.file != null
     const payload = makePayload(hasNewImage, req)
 
@@ -70,7 +70,6 @@ function deleteImage(product) {
     console.log("DELETE IMAGE", product)
     const imageToDelete = product.imageUrl.split("/").at(-1)
     return unlink("images/" + imageToDelete)
-        .catch((err) => console.error("PROBLEM UPDATING", err))
 }
 
 function makePayload(hasNewImage, req) {
@@ -121,48 +120,4 @@ function createSauces(req, res) {
         .catch((err) => res.status(500).send(err))
 }
 
-function likeSauce(req, res) {
-    const { like, userId } = req.body
-    if (![0, -1, 1].includes(like)) return res.status(403).send({ message: "Invalid like value"})
-
-    getSauce(req, res)
-        .then((product) => updateVote(product, like, userId, res))
-        .then(pr => pr.save())
-        .then((prod) => sendClientResponse(prod, res))
-        .catch((err) => res.status(500).send(err))
-}
-
-function updateVote(product, like, userId, res) {
-    if (like === 1 || like === -1) return incrementVote(product, userId, like)
-    if (like === 0) return resetVote(product, userId, res)
-}
-
-function resetVote(product, userId) {
-    const { usersLiked, usersDisliked } = product
-    if ([usersLiked, usersDisliked].every(arr => arr.includes(userId))) 
-        return Promise.reject("Users seems to have voted both ways")
-
-    if(![usersLiked, usersDisliked].some((arr) => arr.includes(userId))) 
-        return Promise.reject("User seems to have not voted")
-    
-    const voteToUpdate = usersLiked.includes(userId) ? usersLiked : usersDisliked
-    
-    let arrayToUpdate = usersLiked.includes(userId) ? usersLiked : usersDisliked
-    const arrayWithoutUser = arrayToUpdate.filter((id) => id != userId)
-    arrayToUpdate = arrayWithoutUser
-    return product
-}
-
-function incrementVote(product, userId, like) {
-    const { usersLiked, usersDisliked } = product
-
-    const votersArray = like === 1 ? usersLiked : usersDisliked
-    if (votersArray.includes(userId)) return
-    votersArray.push(userId)
-
-    let voteToUpdate = like === 1 ?product.likes : product.dislikes
-    voteToUpdate++
-    return product
-}
-
-module.exports = { getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce }
+module.exports = { sendClientResponse, getSauce, getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce }

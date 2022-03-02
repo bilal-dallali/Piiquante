@@ -42,5 +42,4 @@ function createToken(email) {
   return jwt.sign({ email: email }, jwtPassword, { expiresIn: "24h" })
 }
 
-//User.deleteMany({}).then(() => console.log("all removed"))
 module.exports = { createUser, logUser }
