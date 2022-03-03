@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const { unlink } = require("fs/promises")
-const { likeSauce } = require("./vote")
+//const { likeSauce } = require("./vote")
 
 const productSchema = new mongoose.Schema({
     userId: String,
@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema({
     usersLiked: [String],
     usersDisliked: [String]
 })
+
 const Product = mongoose.model("Product", productSchema)
 
 function getSauces(req, res) {
@@ -118,6 +119,52 @@ function createSauces(req, res) {
         .save()
         .then((message) => res.status(201).send({ message }))
         .catch((err) => res.status(500).send(err))
+}
+
+function likeSauce(req, res) {
+    const { like, userId } = req.body
+    if (![1, -1, 0].includes(like)) return res.status(403).send({ message: "Invalid like value" })
+
+    getSauce(req, res)
+        .then((product) => updateVote(product, like, userId, res))
+        .then((pr) => pr.save())
+        .then((prod) => sendClientResponse(prod, res))
+        .catch((err) => res.status(500).send(err))
+}
+
+function updateVote(product, like, userId, res) {
+    if (like === 1 || like === -1) return incrementVote(product, userId, like)
+    return resetVote(product, userId, res)
+}
+
+function resetVote(product, userId, res) {
+    const { usersLiked, usersDisliked } = product
+    if ([usersLiked, usersDisliked].every((arr) => arr.includes(userId))) 
+        return Promise.reject("Users seems to have voted both ways")
+
+    if(![usersLiked, usersDisliked].some((arr) => arr.includes(userId))) 
+        return Promise.reject("User seems to have not voted")
+
+    if (usersLiked.includes(userId)) {
+        --product.likes
+        product.usersLiked = product.usersLiked.filter((id) => id !== userId)
+    } else {
+        --product.dislikes
+        product.usersDisliked = product.usersDisliked.filter((id) => id !== userId)
+    }
+
+    return product
+}
+
+function incrementVote(product, userId, like) {
+    const { usersLiked, usersDisliked } = product
+
+    const votersArray = like === 1 ? usersLiked : usersDisliked
+    if (votersArray.includes(userId)) return product
+    votersArray.push(userId)
+
+    like === 1 ? ++product.likes : ++product.dislikes
+    return product
 }
 
 module.exports = { sendClientResponse, getSauce, getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce }

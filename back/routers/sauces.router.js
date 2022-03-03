@@ -1,9 +1,17 @@
 const bodyParser = require("body-parser")
 const express = require("express")
-const { getSauces, createSauces, getSauceById, deleteSauce, modifySauce, likeSauce } = require("../controlers/sauces")
+const { 
+    getSauces, 
+    createSauces, 
+    getSauceById, 
+    deleteSauce, 
+    modifySauce, 
+    likeSauce 
+} = require("../controlers/sauces")
 const { authentificateUser } = require("../middleware/auth")
 const { upload } = require("../middleware/multer")
 const saucesRouter = express.Router()
+//const bodyParser = require("body-parser")
 
 saucesRouter.use(bodyParser.json())
 saucesRouter.use(authentificateUser)
